@@ -1,19 +1,20 @@
 #!/bin/bash
 
-# Input Arguments
+# Wi-Fi network details
 SSID="Guru"
 PASSWORD="1234567891"
-SECURITY="WPA2"
+INTERFACE="wlp2s0"
 
-INTERFACE="wlp2s0" # Replace with the correct interface if it's different
+# Scan for available networks to check if the SSID exists
+if ! sudo nmcli device wifi list ifname "$INTERFACE" | grep -q "$SSID"; then
+  echo "Network with SSID '$SSID' not found. Please check if the network is in range."
+  exit 1
+fi
 
-# Disconnect any current connection
-sudo nmcli device disconnect "$INTERFACE"
-
-# Connect to the specified Wi-Fi network
+# Attempt to connect to the specified Wi-Fi network
 sudo nmcli device wifi connect "$SSID" password "$PASSWORD" ifname "$INTERFACE"
 
-# Confirm connection by pinging Google DNS
+# Check if the connection was successful
 if ping -c 4 8.8.8.8 &> /dev/null; then
   echo "Connected to $SSID successfully!"
 else
